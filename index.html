@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>System Update</title>
+    <style>
+      /* CSS TIMING ARCHITECTURE
+           Total Animation Duration: ~30s
+           Phase 1: 0-4s
+           Phase 2: 4-8s
+           Phase 3: 8-12s
+           Phase 4: 12-16s (The "Jitter" Phase)
+           Phase 5: 16-20s (Progress Bar)
+           Phase 6: 20-27s (The 99% Freeze)
+           Phase 7: 27s+ (The Reveal)
+        */
+
+      :root {
+        --ios-blur: blur(25px) saturate(180%);
+        --ios-bg: rgba(25, 25, 25, 0.7);
+        --system-red: #ff453a;
+        --system-blue: #0a84ff;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        background-color: #000;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+          sans-serif;
+        color: white;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      /* DEVICE RESTRICTION: Only iPhone screens */
+      @media (min-width: 440px) {
+        .device-wall {
+          display: flex !important;
+        }
+        .stage {
+          display: none !important;
+        }
+      }
+
+      .device-wall {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+      }
+
+      /* THE BACKGROUND AMBIENT GLOW */
+      .ambient-glow {
+        position: fixed;
+        width: 150vw;
+        height: 150vh;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #000 70%);
+        animation: bg-pulse 10s ease-in-out infinite alternate;
+        z-index: -1;
+      }
+
+      @keyframes bg-pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(1.1);
+          opacity: 0.9;
+          background-color: #0a0a0a;
+        }
+      }
+
+      /* THE SYSTEM MODAL (LIQUID GLASS) */
+      .modal {
+        width: 90%;
+        max-width: 320px;
+        background: var(--ios-bg);
+        backdrop-filter: var(--ios-blur);
+        -webkit-backdrop-filter: var(--ios-blur);
+        border-radius: 30px;
+        padding: 24px;
+        text-align: center;
+        border: 0.5px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        animation: modal-jitter 0.2s linear infinite both;
+        animation-play-state: paused;
+        animation-delay: 12s; /* Starts at Phase 4 */
+      }
+
+      @keyframes modal-jitter {
+        0% {
+          transform: translate(0, 0);
+        }
+        25% {
+          transform: translate(1px, 1px);
+        }
+        50% {
+          transform: translate(-1px, 0px);
+        }
+        75% {
+          transform: translate(1px, -1px);
+        }
+        100% {
+          transform: translate(0, 0);
+        }
+      }
+
+      /* TEXT PHASES */
+      .phase {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 0 24px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .title {
+        font-size: 19px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        letter-spacing: -0.4px;
+      }
+
+      .description {
+        font-size: 15px;
+        line-height: 1.4;
+        color: #efeff4;
+        font-weight: 400;
+      }
+
+      /* PHASE ANIMATIONS */
+      .p1 {
+        animation: fade-sequence 4s forwards;
+      }
+      .p2 {
+        animation: fade-sequence 4s 4s forwards;
+      }
+      .p3 {
+        animation: fade-sequence 4s 8s forwards;
+      }
+      .p4 {
+        animation: fade-sequence 4s 12s forwards;
+        color: var(--system-red);
+      }
+      .p5 {
+        animation: fade-sequence 11s 16s forwards;
+      } /* Stays through freeze */
+      .p7 {
+        animation: fade-in 1s 27s forwards;
+      }
+
+      @keyframes fade-sequence {
+        0%,
+        5% {
+          opacity: 0;
+          transform: translateY(-40%);
+        }
+        15%,
+        85% {
+          opacity: 1;
+          transform: translateY(-50%);
+        }
+        95%,
+        100% {
+          opacity: 0;
+          transform: translateY(-60%);
+        }
+      }
+
+      @keyframes fade-in {
+        0% {
+          opacity: 0;
+          transform: translateY(-40%);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(-50%);
+        }
+      }
+
+      /* PROGRESS BAR SIMULATION (Phase 5) */
+      .progress-container {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin-top: 20px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: var(--system-blue);
+        width: 0%;
+        animation: load 4s 16s cubic-bezier(0.1, 0.5, 0.1, 1) forwards;
+      }
+
+      @keyframes load {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 99%;
+        }
+      }
+
+      .counter::after {
+        content: "0%";
+        display: block;
+        margin-top: 10px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        animation: count-up 4s steps(99) 16s forwards;
+      }
+
+      @keyframes count-up {
+        0% {
+          content: "1%";
+        }
+        100% {
+          content: "99%";
+        }
+      }
+
+      /* THE JITTER TRIGGER */
+      .stage-manager {
+        animation: trigger-jitter 4s 12s forwards;
+      }
+      @keyframes trigger-jitter {
+        0%,
+        100% {
+          --active-jitter: running;
+        }
+      }
+
+      .reveal-bg {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at center, #1c1c1e, #000);
+        z-index: 10;
+        opacity: 0;
+        pointer-events: none;
+        animation: fade-in-bg 1s 27s forwards;
+      }
+      @keyframes fade-in-bg {
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="device-wall">
+      <p>This page is only available on iPhone.</p>
+    </div>
+
+    <div class="ambient-glow"></div>
+    <div class="reveal-bg"></div>
+
+    <div class="stage">
+      <div class="modal" style="height: 180px; position: relative">
+        <div class="phase p1">
+          <div class="title">iOS Security Alert</div>
+          <div class="description">
+            Unusual system activity has been detected on this iPhone.
+          </div>
+        </div>
+
+        <div class="phase p2">
+          <div class="title">Security Warning</div>
+          <div class="description">
+            Some iCloud data may be exposed to an external source.
+          </div>
+        </div>
+
+        <div class="phase p3">
+          <div class="title">Data Risk</div>
+          <div class="description">
+            Photos, contacts, and account metadata are at risk.
+          </div>
+        </div>
+
+        <div class="phase p4">
+          <div class="title">Critical Alert</div>
+          <div class="description">
+            Active data leak detected. Initializing lockdown.
+          </div>
+        </div>
+
+        <div class="phase p5">
+          <div class="title">Securing iPhone…</div>
+          <div class="description">Patching system kernel vulnerabilities.</div>
+          <div class="progress-container">
+            <div class="progress-bar"></div>
+          </div>
+          <div class="counter"></div>
+        </div>
+
+        <div class="phase p7" style="z-index: 20">
+          <div class="title" style="font-size: 24px">Relax 😄</div>
+          <div class="description">
+            This was just a prank. No data was accessed or collected.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* Phase 4 Jitter timing */
+      .modal {
+        animation-name: modal-jitter;
+        animation-duration: 0.1s;
+        animation-iteration-count: 40; /* Ends after 4 seconds */
+        animation-delay: 12s;
+        animation-fill-mode: forwards;
+      }
+    </style>
+  </body>
+</html>
