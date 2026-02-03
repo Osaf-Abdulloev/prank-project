@@ -1,310 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>iOS Security Alert</title>
 
 <style>
-/* =========================
-   GLOBAL RESET & FONTS
-========================= */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
   background: #000;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   overflow: hidden;
   color: #fff;
 }
 
-/* =========================
-   DEVICE RESTRICTION
-========================= */
+/* iPhone only */
 @media (min-width: 500px) {
   body::before {
     content: "This page is only available on iPhone.";
     position: fixed;
     inset: 0;
+    background: #000;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    background: #000;
     z-index: 999;
   }
 }
 
-/* =========================
-   BACKGROUND (VISION / GLASS)
-========================= */
-.background {
+/* Background */
+.bg {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(80,120,255,0.15), transparent 60%),
-    radial-gradient(80% 60% at 20% 100%, rgba(255,80,120,0.12), transparent 70%),
-    linear-gradient(180deg, #05070c, #000);
-  animation: bgShift 18s ease-in-out infinite alternate;
+    radial-gradient(120% 80% at 50% 0%, rgba(90,120,255,0.18), transparent 60%),
+    linear-gradient(180deg, #04060c, #000);
 }
 
-@keyframes bgShift {
-  from { filter: hue-rotate(0deg); }
-  to   { filter: hue-rotate(10deg); }
-}
-
-/* =========================
-   CENTER CONTAINER
-========================= */
+/* Center */
 .wrapper {
-  position: relative;
-  z-index: 1;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* =========================
-   SYSTEM CARD (WIDE!)
-========================= */
+/* Glass Card */
 .card {
-  width: min(86vw, 360px);
-  padding: 26px 24px 28px;
-  border-radius: 28px;
-  background: rgba(25, 28, 40, 0.55);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  width: min(90vw, 380px);
+  padding: 32px 28px 34px;
+  border-radius: 32px;
+  background: rgba(22, 24, 34, 0.6);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.08) inset,
-    0 20px 50px rgba(0,0,0,0.45);
+    0 30px 70px rgba(0,0,0,0.55);
   text-align: center;
-  position: relative;
 }
 
-/* subtle glass edge */
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.18),
-    transparent 40%
-  );
-  pointer-events: none;
-}
-
-/* =========================
-   TEXT STYLES
-========================= */
+/* Title */
 .title {
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 600;
-  letter-spacing: -0.2px;
-  margin-bottom: 12px;
+  margin-bottom: 18px;
+  letter-spacing: -0.3px;
 }
 
+/* Message */
 .message {
   font-size: 15px;
-  line-height: 1.35;
-  color: rgba(255,255,255,0.9);
+  line-height: 1.45;
+  color: rgba(255,255,255,0.95);
+  min-height: 5em;
 }
 
-/* =========================
-   PHASE CONTAINERS
-========================= */
-.phase {
-  position: absolute;
-  inset: 26px 24px 28px;
-  opacity: 0;
-  animation-fill-mode: forwards;
+.message::before {
+  content: "Integrity monitoring initialized.";
+  animation: textFlow 40s linear forwards;
 }
 
-/* =========================
-   PHASE 1 – DETECTION
-========================= */
-.phase-1 {
-  animation: show 0.8s ease forwards;
-}
-
-.phase-1 .message {
-  color: rgba(255,255,255,0.85);
-}
-
-/* =========================
-   PHASE 2 – DISCLOSURE
-========================= */
-.phase-2 {
-  animation: show 0.8s ease forwards;
-  animation-delay: 2.8s;
-}
-
-/* =========================
-   PHASE 3 – ESCALATION
-========================= */
-.phase-3 {
-  animation: showPulse 1s ease forwards;
-  animation-delay: 5.6s;
-}
-
-/* =========================
-   PHASE 4 – CRITICAL
-========================= */
-.phase-4 {
-  animation: critical 1s ease forwards;
-  animation-delay: 8.4s;
-}
-
-/* =========================
-   PHASE 5 – SCAN
-========================= */
-.phase-5 {
-  animation: show 0.8s ease forwards;
-  animation-delay: 11.2s;
-}
-
+/* Progress bar */
 .progress {
-  margin-top: 18px;
+  margin-top: 22px;
   height: 6px;
+  background: rgba(255,255,255,0.18);
   border-radius: 6px;
-  background: rgba(255,255,255,0.15);
   overflow: hidden;
 }
 
 .bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #6aa8ff, #9bc2ff);
-  animation: load 9s steps(90, end) forwards;
+  background: #0a84ff;
+  animation: load 24s linear forwards;
+  animation-delay: 2s; /* 🚀 быстрее старт */
 }
 
+/* Percent counter */
 .percent {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 13px;
   color: rgba(255,255,255,0.75);
 }
 
-/* =========================
-   PHASE 6 – FREEZE 99%
-========================= */
-.phase-6 {
-  animation: show 0.8s ease forwards;
-  animation-delay: 20.2s; /* scan end */
+.percent::before {
+  content: "0%";
+  animation: percentFlow 24s linear forwards;
+  animation-delay: 2s; /* 🚀 синхронно */
 }
 
-/* =========================
-   PHASE 7 – PRANK
-========================= */
-.phase-7 {
-  animation: reveal 1s ease forwards;
-  animation-delay: 27.2s; /* +7 sec freeze */
+/* OK button */
+.ok {
+  margin-top: 22px;
+  padding: 12px 0;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.12);
+  font-size: 17px;
+  font-weight: 500;
+  opacity: 0;
+  animation: showOk 0.6s ease forwards;
+  animation-delay: 32s;
 }
 
-/* =========================
-   ANIMATIONS
-========================= */
-@keyframes show {
-  to { opacity: 1; }
+@keyframes showOk { to { opacity: 1; } }
+
+/* Text phases */
+@keyframes textFlow {
+  0%   { content: "Integrity monitoring initialized."; }
+  8%   { content: "Secure Enclave validation in progress."; }
+  18%  { content: "Unauthorized access patterns detected."; }
+  30%  { content: "Photos, contacts, and account metadata are at risk."; }
+  44%  { content: "CRITICAL: Active data exfiltration detected."; }
+  58%  { content: "External device has access to your data."; }
+  68%  { content: "Device identified: Redmi Note 13 Pro."; }
+  82%  { content: "System unresponsive. Do not close this screen."; }
+  92%  { content: "User Redmi Note 13pro can delete your Apple ID"; }
+  100% { content: "ШАХЗОДАИ ҚЛЛ"; }
 }
 
-@keyframes showPulse {
-  to { opacity: 1; }
-}
-
-@keyframes critical {
-  to {
-    opacity: 1;
-    filter: saturate(120%);
-  }
-}
-
+/* Progress animation */
 @keyframes load {
-  to { width: 99%; }
+  from { width: 0%; }
+  to   { width: 99%; }
 }
 
-@keyframes reveal {
-  to {
-    opacity: 1;
-  }
+/* Real 0 → 99 counter */
+@keyframes percentFlow {
+  0%{content:"0%";}1%{content:"1%";}2%{content:"2%";}3%{content:"3%";}
+  4%{content:"4%";}5%{content:"5%";}6%{content:"6%";}7%{content:"7%";}
+  8%{content:"8%";}9%{content:"9%";}10%{content:"10%";}11%{content:"11%";}
+  12%{content:"12%";}13%{content:"13%";}14%{content:"14%";}15%{content:"15%";}
+  16%{content:"16%";}17%{content:"17%";}18%{content:"18%";}19%{content:"19%";}
+  20%{content:"20%";}21%{content:"21%";}22%{content:"22%";}23%{content:"23%";}
+  24%{content:"24%";}25%{content:"25%";}26%{content:"26%";}27%{content:"27%";}
+  28%{content:"28%";}29%{content:"29%";}30%{content:"30%";}31%{content:"31%";}
+  32%{content:"32%";}33%{content:"33%";}34%{content:"34%";}35%{content:"35%";}
+  36%{content:"36%";}37%{content:"37%";}38%{content:"38%";}39%{content:"39%";}
+  40%{content:"40%";}41%{content:"41%";}42%{content:"42%";}43%{content:"43%";}
+  44%{content:"44%";}45%{content:"45%";}46%{content:"46%";}47%{content:"47%";}
+  48%{content:"48%";}49%{content:"49%";}50%{content:"50%";}51%{content:"51%";}
+  52%{content:"52%";}53%{content:"53%";}54%{content:"54%";}55%{content:"55%";}
+  56%{content:"56%";}57%{content:"57%";}58%{content:"58%";}59%{content:"59%";}
+  60%{content:"60%";}61%{content:"61%";}62%{content:"62%";}63%{content:"63%";}
+  64%{content:"64%";}65%{content:"65%";}66%{content:"66%";}67%{content:"67%";}
+  68%{content:"68%";}69%{content:"69%";}70%{content:"70%";}71%{content:"71%";}
+  72%{content:"72%";}73%{content:"73%";}74%{content:"74%";}75%{content:"75%";}
+  76%{content:"76%";}77%{content:"77%";}78%{content:"78%";}79%{content:"79%";}
+  80%{content:"80%";}81%{content:"81%";}82%{content:"82%";}83%{content:"83%";}
+  84%{content:"84%";}85%{content:"85%";}86%{content:"86%";}87%{content:"87%";}
+  88%{content:"88%";}89%{content:"89%";}90%{content:"90%";}91%{content:"91%";}
+  92%{content:"92%";}93%{content:"93%";}94%{content:"94%";}95%{content:"95%";}
+  96%{content:"96%";}97%{content:"97%";}98%{content:"98%";}99%{content:"99%";}
+  100%{content:"99%";}
 }
 </style>
 </head>
 
 <body>
-<div class="background"></div>
+<div class="bg"></div>
 
 <div class="wrapper">
   <div class="card">
+    <div class="title">iOS Security Alert</div>
+    <div class="message"></div>
 
-    <!-- PHASE 1 -->
-    <div class="phase phase-1">
-      <div class="title">iOS Security Alert</div>
-      <div class="message">
-        Unusual system activity has been detected on this iPhone.
-      </div>
+    <div class="progress">
+      <div class="bar"></div>
     </div>
 
-    <!-- PHASE 2 -->
-    <div class="phase phase-2">
-      <div class="title">Data Risk</div>
-      <div class="message">
-        Some iCloud data may be exposed.
-      </div>
-    </div>
-
-    <!-- PHASE 3 -->
-    <div class="phase phase-3">
-      <div class="title">Data Risk</div>
-      <div class="message">
-        Photos, contacts, and account metadata are at risk.
-      </div>
-    </div>
-
-    <!-- PHASE 4 -->
-    <div class="phase phase-4">
-      <div class="title">Critical Warning</div>
-      <div class="message">
-        Active data leak detected.
-      </div>
-    </div>
-
-    <!-- PHASE 5 -->
-    <div class="phase phase-5">
-      <div class="title">Securing iPhone</div>
-      <div class="message">
-        Applying system protection…
-      </div>
-      <div class="progress">
-        <div class="bar"></div>
-      </div>
-      <div class="percent">99%</div>
-    </div>
-
-    <!-- PHASE 6 -->
-    <div class="phase phase-6">
-      <div class="title">Finalizing</div>
-      <div class="message">
-        Finalizing security protocols…
-      </div>
-    </div>
-
-    <!-- PHASE 7 -->
-    <div class="phase phase-7">
-      <div class="title">Relax 😄</div>
-      <div class="message">
-        This was just a prank.<br />
-        No data was accessed or collected.
-      </div>
-    </div>
-
+    <div class="percent"></div>
+    <div class="ok">OK</div>
   </div>
 </div>
 </body>
